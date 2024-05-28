@@ -1,6 +1,8 @@
 import { OurDate } from "./OurDate";
 import { InMemoryTransport } from "./InMemoryTransport";
 import { BirthdayService } from "./BirthdayService";
+import { SmtpGreetingDelivery } from "./SmtpGreetingDelivery";
+import { EmployeesRepository } from "./EmployeesRepository";
 
 describe("Acceptance", () => {
   const SMTP_PORT = 25;
@@ -15,13 +17,18 @@ describe("Acceptance", () => {
   });
 
   it("base scenario", () => {
-    birthdayService.sendGreetings(
-      new OurDate("2008/10/08"),
-      "employee_data.txt",
-      SMTP_URL,
+
+    const messageDelivery= new SmtpGreetingDelivery(
       SMTP_PORT,
+      SMTP_URL,
       transport
-    );
+    )
+
+    const employeesRepository=new EmployeesRepository(FILENAME);
+
+    birthdayService= new BirthdayService(messageDelivery,employeesRepository)
+    
+    birthdayService.sendGreetings(new OurDate("2008/10/08"))
 
     expect(transport.messagesSent.length).toEqual(1);
     const message = transport.messagesSent[0];
@@ -33,25 +40,34 @@ describe("Acceptance", () => {
   });
 
   it("will not send emails when nobodys birthday", () => {
-    birthdayService.sendGreetings(
-      new OurDate("2008/01/01"),
-      "employee_data.txt",
-      SMTP_URL,
+
+    const messageDelivery= new SmtpGreetingDelivery(
       SMTP_PORT,
+      SMTP_URL,
       transport
-    );
+    )
+
+    const employeesRepository=new EmployeesRepository(FILENAME);
+
+    birthdayService= new BirthdayService(messageDelivery,employeesRepository)
+    
+    birthdayService.sendGreetings(new OurDate("2008/01/01"))
 
     expect(transport.messagesSent.length).toEqual(0);
   });
 
   it("uses correct transport", () => {
-    birthdayService.sendGreetings(
-      new OurDate("2008/10/08"),
-      "employee_data.txt",
-      SMTP_URL,
+    const messageDelivery= new SmtpGreetingDelivery(
       SMTP_PORT,
+      SMTP_URL,
       transport
-    );
+    )
+
+    const employeesRepository=new EmployeesRepository(FILENAME);
+
+    birthdayService= new BirthdayService(messageDelivery,employeesRepository)
+    
+    birthdayService.sendGreetings(new OurDate("2008/10/08"))
 
     const message = transport.messagesSent[0];
     expect(message.host).toEqual(SMTP_URL);
